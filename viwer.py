@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.font as tf
+from tkinter.simpledialog import askstring
 from PIL import ImageTk, Image
 import threading
 from imgprocess import process
@@ -8,7 +9,10 @@ import matplotlib.pyplot as plt
 
 
 class MyApp:
-    def __init__(self, master, screnn_size, full_url):
+    def __init__(self, master, screnn_size):
+        self.save_folder_name = None
+        url = askstring("IP", "What is your Ip adress?")
+        full_url = f'https://{url}/video'
         BUTTON_WIDTH = 10
         BUTTON_HEIGHT = 2
         WIDHT = int(screnn_size[0]/2)
@@ -43,8 +47,11 @@ class MyApp:
         save_button = tk.Button(master, overrelief='solid', width=BUTTON_WIDTH, text='SAVE', bd=5, relief='raised', bg='#0097e6',
                                 fg='#dcdde1', height=BUTTON_HEIGHT, repeatdelay=1000, repeatinterval=100, command=self.save)
         save_button.place(x=BUTTON_X + 2*10*BUTTON_WIDTH + 5, y=BUTTON_Y)
-        t1 = threading.Thread(target=self.pro.stream)
-        t1.start()
+        self.t1 = threading.Thread(target=self.pro.stream)
+        self.t1.start()
+
+    def __del__(self):
+        self.pro.stream_stop=True 
 
     def upload_image_to_tkinter(self, label, img, *place):
         axis = place
@@ -60,17 +67,15 @@ class MyApp:
 
     def run(self):
         result_img = self.pro.run()
-        print(type(result_img))
+        self.upload_image_to_tkinter(self.result_image, result_img)
         
     def save(self):
-        pass
-
-
+        if self.save_folder_name is None:
+            self.save_folder_name = askstring("SAVE", "Enter the name of the folder to be saved")
+        self.pro.save(self.save_folder_name)
 
 def main():
     # 192.168.42.129:8080
-    url = input()
-    full_url = f'https://{url}/video'
     screnn_size = (1400, 900)
     screen_geometry = f'{screnn_size[0]}x{screnn_size[1]}+50+50'
     root = tk.Tk()
@@ -79,9 +84,8 @@ def main():
     root.iconbitmap(r'book.ico')
     root.configure(bg='#7f8fa6')
     root.resizable(False, False)
-    myapp=MyApp(root, screnn_size, full_url)
+    MyApp(root, screnn_size)
     root.mainloop()
-
 
 
 if __name__=="__main__":
