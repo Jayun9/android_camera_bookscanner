@@ -388,23 +388,26 @@ def run(inputimage):
     img = inputimage
     small = resize_to_screen(img)
     pagemask, page_outline = get_page_extents(small)
+    print('get mask')
     cinfo_list = get_contours(small, pagemask)
+    print('get contours')
     spans = assemble_spans(cinfo_list)
     span_points = sample_spans(small.shape, spans)  # 이미지에서 실제 좌표는 아님
+    print('get sample')
     corners, ycoords, xcoords = keypoints_from_samples(pagemask,
                                                        page_outline,
                                                        span_points)
     rough_dims, span_counts, params = get_default_params(corners,
                                                          ycoords, xcoords)
+    print('get parmas')
     dstpoints = np.vstack((corners[0].reshape((1, 1, 2)),) +
                           tuple(span_points))
+    print('doing dewarp')
     params = optimize_params(small,
                              dstpoints,
                              span_counts, params)
     page_dims = get_page_dims(corners, rough_dims, params)
+    print('doing remap')
     outfile = remap_image(img, page_dims, params)
     return outfile
 
-# img = cv2.imread('1.jpg')
-# output = run_dewarp(img) 
-# cv2.imwrite("./return.jpg", output )

@@ -5,7 +5,7 @@ from PIL import ImageTk, Image
 import threading
 from imgprocess import process
 import matplotlib.pyplot as plt
-
+ 
 
 
 class MyApp:
@@ -17,24 +17,24 @@ class MyApp:
         BUTTON_HEIGHT = 2
         WIDHT = int(screnn_size[0]/2)
         BUTTON_X = 3 * int(WIDHT / 2)
-        BUTTON_Y = 800
+        BUTTON_Y = 820
         MARGIN = 15
         self.pro = process(full_url)
         font = tf.Font(size=13, weight='bold')
 
-        dobi = ImageTk.PhotoImage(Image.open('dobi.png'))
+        self.dobi = ImageTk.PhotoImage(Image.open('dobi.png'))
         captured_image_text = tk.Label(text='CAPTURE', font=font, bg='#7f8fa6')
         captured_image_text.place(x=MARGIN, y=MARGIN)
         self.captured_image = tk.Label()
-        self.captured_image.image = dobi
-        self.captured_image.configure(image=dobi)
+        self.captured_image.image = self.dobi
+        self.captured_image.configure(image=self.dobi)
         self.captured_image.place(x=MARGIN, y=MARGIN*3)
 
         result_image_text = tk.Label(text='RESULT', font=font, bg='#7f8fa6')
         result_image_text.place(x=WIDHT + MARGIN, y=MARGIN)
         self.result_image = tk.Label()
-        self.result_image.image = dobi
-        self.result_image.configure(image=dobi)
+        self.result_image.image = self.dobi
+        self.result_image.configure(image=self.dobi)
         self.result_image.place(x=WIDHT + MARGIN, y=MARGIN*3)
 
         # button
@@ -64,10 +64,12 @@ class MyApp:
         capture_array = self.pro.capture()
         capture_image = ImageTk.PhotoImage(image=Image.fromarray(capture_array))
         self.upload_image_to_tkinter(self.captured_image, capture_image)
+        self.upload_image_to_tkinter(self.result_image, self.dobi)
 
     def run(self):
-        result_img = self.pro.run()
-        self.upload_image_to_tkinter(self.result_image, result_img)
+        result_array = self.pro.run()
+        result_image = ImageTk.PhotoImage(image=Image.fromarray(result_array))
+        self.upload_image_to_tkinter(self.result_image, result_image)
         
     def save(self):
         if self.save_folder_name is None:
